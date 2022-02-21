@@ -1,14 +1,12 @@
 ﻿namespace Entitas.Generic
 {
-    public partial class Entity<TScope>
-        : Entitas.Entity
-        where TScope : IScope
+    public partial class Entity<TScope> : Entitas.Entity where TScope : IScope
     {
-        public void Add<TComp>(TComp comp) where TComp : class, Scope<TScope>, ICompData, ICopyFrom<TComp>,IComponent, new()
+        public void Add<TComp>(TComp comp) where TComp : class, Scope<TScope>, ICompData, ICopyFrom<TComp>, IComponent, new()
         {
             var index = Lookup<TScope, TComp>.Id;
             var component = CreateComponent(index, typeof(TComp));
-            ((TComp)component).CopyFrom(comp);
+            ((TComp) component).CopyFrom(comp);
             AddComponent(index, component);
         }
 
@@ -16,16 +14,22 @@
         {
             var index = Lookup<TScope, TComp>.Id;
             var component = CreateComponent(index, typeof(TComp));
-            ((TComp)component).CopyFrom(comp);
+            ((TComp) component).CopyFrom(comp);
             ReplaceComponent(index, component);
         }
 
-        public void Remove<TComp>()where TComp : class, Scope<TScope>, ICompData, IComponent
+        public void Remove<TComp>() where TComp : class, Scope<TScope>, ICompData, IComponent
         {
+            var index = Lookup<TScope, TComp>.Id;
+            if (!HasComponent(index))
+            {
+                return;
+            }
+
             RemoveComponent(Lookup<TScope, TComp>.Id);
         }
 
-        public void RemoveSafe<TComp>()where TComp : class, Scope<TScope>, ICompData, IComponent
+        public void RemoveSafe<TComp>() where TComp : class, Scope<TScope>, ICompData, IComponent
         {
             var index = Lookup<TScope, TComp>.Id;
             if (HasComponent(index))
@@ -41,10 +45,10 @@
 
         public TComp GetOrAdd<TComp>() where TComp : class, Scope<TScope>, IComponent, ICompData
         {
-            var index = Lookup<TScope,TComp>.Id;
-            if ( HasComponent( index ) )
+            var index = Lookup<TScope, TComp>.Id;
+            if (HasComponent(index))
             {
-                return (TComp) GetComponent( index );
+                return (TComp) GetComponent(index);
             }
 
             var component = CreateComponent(index, typeof(TComp));
@@ -56,13 +60,25 @@
         {
             var index = Lookup<TScope, TComp>.Id;
             var component = CreateComponent(index, typeof(TComp));
-            return (TComp)component;
+            return (TComp) component;
         }
 
         public void Apply<TComp>(TComp comp) where TComp : class, Scope<TScope>, ICompData, ICreateApply, IComponent, new()
         {
             var index = Lookup<TScope, TComp>.Id;
-            ReplaceComponent(index, comp);
+            if (HasComponent(index))
+            {
+                ReplaceComponent(index, comp);
+            }
+            else
+            {
+                if (comp == null)
+                {
+                    return;
+                }
+
+                AddComponent(index, comp);
+            }
         }
 
         public void Flag<TComp>(bool flag) where TComp : class, Scope<TScope>, ICompFlag, IComponent, new()
@@ -76,8 +92,9 @@
                 {
                     return;
                 }
+
                 var component = CreateComponent(index, typeof(TComp));
-                AddComponent( index, component );
+                AddComponent(index, component);
             }
             else
             {
@@ -85,6 +102,7 @@
                 {
                     return;
                 }
+
                 RemoveComponent(index);
             }
         }
