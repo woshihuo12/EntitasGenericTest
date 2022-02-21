@@ -32,16 +32,11 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="DesperateDevs.Utils, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\Libs\DesperateDevs.Utils.dll</HintPath>
-        </Reference>
         <Reference Include="Entitas, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\..\Libs\Entitas.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Sources\Component\Struct_ToString_Implemented.cs" />
