@@ -49,9 +49,9 @@
     <Compile Include="Core\ScopedContext_ClassMethods.cs" />
     <Compile Include="Core\ScopedContext_StructMethods.cs" />
     <Compile Include="Core\StructComponent.cs" />
-    <Compile Include="Events\Component_EventInterfaces.cs" />
-    <Compile Include="Events\EventComponents.cs" />
-    <Compile Include="Events\OnEvent_Interfaces.cs" />
+    <Compile Include="EventBase\Component_EventInterfaces.cs" />
+    <Compile Include="EventBase\EventComponents.cs" />
+    <Compile Include="EventBase\OnEvent_Interfaces.cs" />
     <Compile Include="Lookup\CacheT.cs" />
     <Compile Include="Lookup\Lookup.cs" />
     <Compile Include="Lookup\Lookup_ComponentManager.cs" />
