@@ -1,23 +1,24 @@
-using System;
-
 namespace Entitas.Generic
 {
     public partial class ScopedContext<TScope>
     {
-        public Entity<TScope> GetEntity<TComp>()
-            where TComp : class, Scope<TScope>, IComponent, IUnique
+        public Entity<TScope> GetEntity<TComp>() where TComp : class, Scope<TScope>, IComponent, IUnique
         {
             return GetGroup(Matcher<TScope, TComp>.I).GetSingleEntity();
         }
 
-        public TComp Get<TComp>()
-            where TComp : class, Scope<TScope>, IComponent, ICompData, IUnique
+        public TComp Get<TComp>() where TComp : class, Scope<TScope>, IComponent, ICompData, IUnique
         {
-            return GetEntity<TComp>().Get<TComp>();
+            var entity = GetEntity<TComp>();
+            if (entity == null)
+            {
+                return null;
+            }
+
+            return entity.Get<TComp>();
         }
 
-        public Boolean Has<TComp>()
-            where TComp : class, Scope<TScope>, IComponent, ICompData, IUnique
+        public bool Has<TComp>() where TComp : class, Scope<TScope>, IComponent, ICompData, IUnique
         {
             return GetGroup(Matcher<TScope, TComp>.I).GetSingleEntity() != null;
         }
@@ -39,10 +40,15 @@ namespace Entitas.Generic
             return entity;
         }
 
-        public void Remove<TComp>()
-            where TComp : class, Scope<TScope>, IComponent, ICompData, IUnique
+        public void Remove<TComp>() where TComp : class, Scope<TScope>, IComponent, ICompData, IUnique
         {
-            GetEntity<TComp>().Remove<TComp>();
+            var entity = GetEntity<TComp>();
+            if (entity == null)
+            {
+                return;
+            }
+
+            entity.Remove<TComp>();
         }
 
         public void Replace<TComp>(TComp component)
@@ -59,8 +65,7 @@ namespace Entitas.Generic
             }
         }
 
-        public void Flag<TComp>(Boolean value)
-            where TComp : class, Scope<TScope>, IComponent, ICompFlag, IUnique, new()
+        public void Flag<TComp>(bool value) where TComp : class, Scope<TScope>, IComponent, ICompFlag, IUnique, new()
         {
             var ent = GetGroup(Matcher<TScope, TComp>.I).GetSingleEntity();
             if (value == (ent != null))
@@ -78,8 +83,7 @@ namespace Entitas.Generic
             }
         }
 
-        public Boolean Is<TComp>()
-            where TComp : class, Scope<TScope>, IComponent, ICompFlag, IUnique
+        public bool Is<TComp>() where TComp : class, Scope<TScope>, IComponent, ICompFlag, IUnique
         {
             return GetGroup(Matcher<TScope, TComp>.I).GetSingleEntity() != null;
         }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Entitas.Generic
+﻿namespace Entitas.Generic
 {
     public partial class Entity<TScope> : Entitas.Entity where TScope : IScope
     {
@@ -58,7 +56,7 @@ namespace Entitas.Generic
             return component.Data;
         }
 
-        public Boolean Has_<TData>() where TData : struct, Scope<TScope>, IComponent, ICompData
+        public bool Has_<TData>() where TData : struct, Scope<TScope>, IComponent, ICompData
         {
             return HasComponent(Lookup<TScope, TData>.Id);
         }
