@@ -52,11 +52,39 @@
     <Compile Include="Events\EventBase\Component_EventInterfaces.cs" />
     <Compile Include="Events\EventBase\EventComponents.cs" />
     <Compile Include="Events\EventBase\OnEvent_Interfaces.cs" />
+    <Compile Include="Events\EventSystem\Events2\Events2.cs" />
+    <Compile Include="Events\EventSystem\Events2\EventSystem_Any2.cs" />
+    <Compile Include="Events\EventSystem\Events2\EventSystem_Any_Flag2.cs" />
+    <Compile Include="Events\EventSystem\Events2\EventSystem_Any_Removed2.cs" />
+    <Compile Include="Events\EventSystem\Events2\EventSystem_Self2.cs" />
+    <Compile Include="Events\EventSystem\Events2\EventSystem_Self_Flag2.cs" />
+    <Compile Include="Events\EventSystem\Events2\EventSystem_Self_Removed2.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnAny.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnAny_Base.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnAny_Flag.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnAny_Removed.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnSelf.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnSelf_Base.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnSelf_Flag.cs" />
+    <Compile Include="Events\EventSystem\Events2\OnSelf_Removed.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_Any.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_AnyRemoved.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_AnyRemoved_.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_Any_.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_Self.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_SelfFlag.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_SelfRemoved.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_SelfRemoved_.cs" />
+    <Compile Include="Events\EventSystem\Events\EventSystem_Self_.cs" />
+    <Compile Include="Events\EventSystem\Events\Event_EntityMethods.cs" />
     <Compile Include="Lookup\CacheT.cs" />
     <Compile Include="Lookup\Lookup.cs" />
     <Compile Include="Lookup\Lookup_ComponentManager.cs" />
     <Compile Include="Lookup\Lookup_ScopeManager.cs" />
     <Compile Include="Lookup\TypeExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Events\EventSystem" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
