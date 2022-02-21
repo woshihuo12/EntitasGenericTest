@@ -7,277 +7,286 @@ using System.Reflection;
 // ReSharper disable StaticMemberInGenericType
 namespace Entitas.Generic
 {
-public class Lookup_ComponentManager<TScope> where TScope : IScope
-{
-	private static			Boolean					_isInit;
+    public class Lookup_ComponentManager<TScope> where TScope : IScope
+    {
+        private static bool _isInit;
 
-	public static			void					Autoscan				(  )
-	{
-		if ( _isInit )
-		{
-			return;
-		}
-		_isInit = true;
+        public static void Autoscan()
+        {
+            if (_isInit)
+            {
+                return;
+            }
 
-		Scan_IComponents(  );
-		Scan_EventAny(  );
-		Scan_EventAnyRemoved(  );
-		Scan_EventSelf(  );
-		Scan_EventSelfRemoved(  );
+            _isInit = true;
 
-		// Console.WriteLine( "\n" + typeof(TScope).Name + ": " + Lookup<TScope>.CompCount.ToString(  ) );
-		// for ( var i = 0; i < Lookup<TScope>.CompTypes.Count; i++ )
-		// {
-		// 	var regT = Lookup<TScope>.CompTypes[i];
-		// 	Console.WriteLine( regT.ToGenericTypeString( ) );
-		// }
-	}
+            Scan_IComponents();
+            Scan_EventAny();
+            Scan_EventAnyRemoved();
+            Scan_EventSelf();
+            Scan_EventSelfRemoved();
 
-	private static			void					Scan_IComponents		(  )
-	{
-		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			foreach (var type in assembly.GetTypes())
-			{
-				if ( !((IList) type.GetInterfaces()).Contains(typeof(IComponent)) )
-				{
-					continue;
-				}
+            // Console.WriteLine( "\n" + typeof(TScope).Name + ": " + Lookup<TScope>.CompCount.ToString(  ) );
+            // for ( var i = 0; i < Lookup<TScope>.CompTypes.Count; i++ )
+            // {
+            // 	var regT = Lookup<TScope>.CompTypes[i];
+            // 	Console.WriteLine( regT.ToGenericTypeString( ) );
+            // }
+        }
 
-				if ( !IsInScope(type))
-				{
-					continue;
-				}
+        private static void Scan_IComponents()
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (!((IList) type.GetInterfaces()).Contains(typeof(IComponent)))
+                    {
+                        continue;
+                    }
 
-				Register(type);
-			}
-		}
-	}
+                    if (!IsInScope(type))
+                    {
+                        continue;
+                    }
 
-	private static			List<Type>				Collect_EventAnyComps	(  )
-	{
-		var eventComps				= new List<Type>(  );
-		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies(  ) )
-		{
-			foreach (var type in assembly.GetTypes())
-			{
-				if ( !((IList) type.GetInterfaces()).Contains(typeof(IComponent))
-					|| !IsInScope(type)
-					|| !IsEventAnyChild(type) )
-				{
-					continue;
-				}
-				eventComps.Add( type );
-			}
-		}
-		return eventComps;
-	}
+                    Register(type);
+                }
+            }
+        }
 
-	private static			List<Type>				Collect_EventAnyRemovedComps(  )
-	{
-		var eventComps = new List<Type>();
-		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			foreach (var type in assembly.GetTypes())
-			{
-				if ( !((IList) type.GetInterfaces()).Contains(typeof(IComponent))
-					|| !IsInScope(type)
-					|| !IsEventAnyRemovedChild(type) )
-				{
-					continue;
-				}
-				eventComps.Add( type );
-			}
-		}
-		return eventComps;
-	}
+        private static List<Type> Collect_EventAnyComps()
+        {
+            var eventComps = new List<Type>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (!((IList) type.GetInterfaces()).Contains(typeof(IComponent))
+                        || !IsInScope(type)
+                        || !IsEventAnyChild(type))
+                    {
+                        continue;
+                    }
 
-	private static			List<Type>				Collect_EventSelfComps	(  )
-	{
-		var eventComps = new List<Type>();
-		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			foreach (var type in assembly.GetTypes())
-			{
-				if ( !((IList) type.GetInterfaces()).Contains(typeof(IComponent))
-					|| !IsInScope(type)
-					|| !IsEventSelfChild(type) )
-				{
-					continue;
-				}
-				eventComps.Add( type );
-			}
-		}
-		return eventComps;
-	}
+                    eventComps.Add(type);
+                }
+            }
 
-	private static			List<Type>				Collect_EventSelfRemovedComps(  )
-	{
-		var eventComps = new List<Type>();
-		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			foreach (var type in assembly.GetTypes())
-			{
-				if ( !((IList) type.GetInterfaces()).Contains(typeof(IComponent))
-					|| !IsInScope(type)
-					|| !IsEventSelfRemovedChild(type) )
-				{
-					continue;
-				}
-				eventComps.Add( type );
-			}
-		}
-		return eventComps;
-	}
+            return eventComps;
+        }
 
-	public static			void					Scan_EventAny			(  )
-	{
-		var eventComps = Collect_EventAnyComps(  );
-		var t_Event = typeof(Event_AnyComponent<,>);
-		for ( var i = 0; i < eventComps.Count; i++ )
-		{
-			var t_Inner = eventComps[i];
+        private static List<Type> Collect_EventAnyRemovedComps()
+        {
+            var eventComps = new List<Type>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (!((IList) type.GetInterfaces()).Contains(typeof(IComponent))
+                        || !IsInScope(type)
+                        || !IsEventAnyRemovedChild(type))
+                    {
+                        continue;
+                    }
 
-			var eventType = t_Event.MakeGenericType( typeof(TScope), t_Inner );
-			Register( eventType );
-		}
-	}
+                    eventComps.Add(type);
+                }
+            }
 
-	public static			void					Scan_EventAnyRemoved	(  )
-	{
-		var eventComps = Collect_EventAnyRemovedComps(  );
-		var t_Event = typeof(Event_AnyRemovedComponent<,>);
-		for ( var i = 0; i < eventComps.Count; i++ )
-		{
-			var t_Inner = eventComps[i];
+            return eventComps;
+        }
 
-			var eventType = t_Event.MakeGenericType( typeof(TScope), t_Inner );
-			Register( eventType );
-		}
-	}
+        private static List<Type> Collect_EventSelfComps()
+        {
+            var eventComps = new List<Type>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (!((IList) type.GetInterfaces()).Contains(typeof(IComponent))
+                        || !IsInScope(type)
+                        || !IsEventSelfChild(type))
+                    {
+                        continue;
+                    }
 
-	public static			void					Scan_EventSelf			(  )
-	{
-		var eventComps = Collect_EventSelfComps(  );
-		var t_Event = typeof(Event_SelfComponent<,>);
-		for ( var i = 0; i < eventComps.Count; i++ )
-		{
-			var t_Inner = eventComps[i];
+                    eventComps.Add(type);
+                }
+            }
 
-			var eventType = t_Event.MakeGenericType( typeof(TScope), t_Inner );
-			Register( eventType );
-		}
-	}
+            return eventComps;
+        }
 
-	public static			void					Scan_EventSelfRemoved	(  )
-	{
-		var eventComps = Collect_EventSelfRemovedComps(  );
-		var t_Event = typeof(Event_SelfRemovedComponent<,>);
-		for ( var i = 0; i < eventComps.Count; i++ )
-		{
-			var t_Inner = eventComps[i];
+        private static List<Type> Collect_EventSelfRemovedComps()
+        {
+            var eventComps = new List<Type>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (!((IList) type.GetInterfaces()).Contains(typeof(IComponent))
+                        || !IsInScope(type)
+                        || !IsEventSelfRemovedChild(type))
+                    {
+                        continue;
+                    }
 
-			var eventType = t_Event.MakeGenericType( typeof(TScope), t_Inner );
-			Register( eventType );
-		}
-	}
+                    eventComps.Add(type);
+                }
+            }
 
-	private static			void					Register				( Type dataType )
-	{
-		try
-		{
-			var lookupT1T2 = typeof(Lookup<,>);
+            return eventComps;
+        }
 
-			// if ( !dataType.IsClass )
-			// {
-			// 	var structComponentType = typeof(StructComponent<>);
-			// 	dataType = structComponentType.MakeGenericType(dataType);
-			// }
+        public static void Scan_EventAny()
+        {
+            var eventComps = Collect_EventAnyComps();
+            var t_Event = typeof(Event_AnyComponent<,>);
+            for (var i = 0; i < eventComps.Count; i++)
+            {
+                var t_Inner = eventComps[i];
 
-			var lookupTScopeTComp = lookupT1T2.MakeGenericType(typeof(TScope), dataType);
+                var eventType = t_Event.MakeGenericType(typeof(TScope), t_Inner);
+                Register(eventType);
+            }
+        }
 
-			if (Lookup<TScope>.CompTypes.Contains(lookupTScopeTComp))
-			{
-				return;
-			}
+        public static void Scan_EventAnyRemoved()
+        {
+            var eventComps = Collect_EventAnyRemovedComps();
+            var t_Event = typeof(Event_AnyRemovedComponent<,>);
+            for (var i = 0; i < eventComps.Count; i++)
+            {
+                var t_Inner = eventComps[i];
 
-			Lookup<TScope>.CompTypes.Add( dataType );
-			Lookup<TScope>.CompNamesFull.Add( dataType.FullName );
-			Lookup<TScope>.CompNamesPretty.Add( dataType.ToGenericTypeString(  ) );
+                var eventType = t_Event.MakeGenericType(typeof(TScope), t_Inner);
+                Register(eventType);
+            }
+        }
 
-			var fieldInfo = lookupTScopeTComp.GetField("Id" ,
-				BindingFlags.Static
-				| BindingFlags.SetField
-				| BindingFlags.Public
-				);
+        public static void Scan_EventSelf()
+        {
+            var eventComps = Collect_EventSelfComps();
+            var t_Event = typeof(Event_SelfComponent<,>);
+            for (var i = 0; i < eventComps.Count; i++)
+            {
+                var t_Inner = eventComps[i];
 
-			if (fieldInfo == null)
-			{
-				throw new Exception(string.Format("Type `{0}' does not contains `Id' field", lookupTScopeTComp.Name));
-			}
+                var eventType = t_Event.MakeGenericType(typeof(TScope), t_Inner);
+                Register(eventType);
+            }
+        }
 
-			fieldInfo.SetValue(null, Lookup<TScope>.CompCount);
-			Lookup<TScope>.CompTypeToI[dataType] = Lookup<TScope>.CompCount;
-			Lookup<TScope>.CompCount++;
-		}
-		catch ( Exception )  // when there is unused IComponent in code - iOS may get exception because of missing AOT 
-		{
-			// Console.WriteLine( ex.Message );
-		}
-	}
+        public static void Scan_EventSelfRemoved()
+        {
+            var eventComps = Collect_EventSelfRemovedComps();
+            var t_Event = typeof(Event_SelfRemovedComponent<,>);
+            for (var i = 0; i < eventComps.Count; i++)
+            {
+                var t_Inner = eventComps[i];
 
-	private static			bool					IsInScope				( Type type )
-	{
-		return type.GetInterfaces(  )
-			.Any( x =>
-				x.IsGenericType
-				&& x.GetGenericTypeDefinition(  ) == typeof(Scope<>)
-				&& x.GetGenericArguments()[0] == typeof(TScope)
-				);
-	}
+                var eventType = t_Event.MakeGenericType(typeof(TScope), t_Inner);
+                Register(eventType);
+            }
+        }
 
-	private static			bool					IsEventAnyChild			( Type type )
-	{
-		return type.GetInterfaces(  )
-			.Any( x =>
-				x.IsGenericType
-				&& x.GetGenericTypeDefinition(  ) == typeof(IEvent_Any<,>)
-				&& x.GetGenericArguments()[0] == typeof(TScope)
-				&& x.GetGenericArguments()[1] == type
-				);
-	}
+        private static void Register(Type dataType)
+        {
+            try
+            {
+                var lookupT1T2 = typeof(Lookup<,>);
 
-	private static			bool					IsEventAnyRemovedChild	( Type type )
-	{
-		return type.GetInterfaces(  )
-			.Any( x =>
-				x.IsGenericType
-				&& x.GetGenericTypeDefinition(  ) == typeof(IEvent_AnyRemoved<,>)
-				&& x.GetGenericArguments()[0] == typeof(TScope)
-				&& x.GetGenericArguments()[1] == type
-				);
-	}
+                // if ( !dataType.IsClass )
+                // {
+                // 	var structComponentType = typeof(StructComponent<>);
+                // 	dataType = structComponentType.MakeGenericType(dataType);
+                // }
 
-	private static			bool					IsEventSelfChild		( Type type )
-	{
-		return type.GetInterfaces(  )
-			.Any( x =>
-				x.IsGenericType
-				&& x.GetGenericTypeDefinition(  ) == typeof(IEvent_Self<,>)
-				&& x.GetGenericArguments()[0] == typeof(TScope)
-				&& x.GetGenericArguments()[1] == type
-				);
-	}
+                var lookupTScopeTComp = lookupT1T2.MakeGenericType(typeof(TScope), dataType);
 
-	private static			bool					IsEventSelfRemovedChild	( Type type )
-	{
-		return type.GetInterfaces(  )
-			.Any( x =>
-				x.IsGenericType
-				&& x.GetGenericTypeDefinition(  ) == typeof(IEvent_SelfRemoved<,>)
-				&& x.GetGenericArguments()[0] == typeof(TScope)
-				&& x.GetGenericArguments()[1] == type
-				);
-	}
-}
+                if (Lookup<TScope>.CompTypes.Contains(lookupTScopeTComp))
+                {
+                    return;
+                }
+
+                Lookup<TScope>.CompTypes.Add(dataType);
+                Lookup<TScope>.CompNamesFull.Add(dataType.FullName);
+                Lookup<TScope>.CompNamesPretty.Add(dataType.ToGenericTypeString());
+
+                var fieldInfo = lookupTScopeTComp.GetField("Id",
+                    BindingFlags.Static
+                    | BindingFlags.SetField
+                    | BindingFlags.Public
+                );
+
+                if (fieldInfo == null)
+                {
+                    throw new Exception(string.Format("Type `{0}' does not contains `Id' field", lookupTScopeTComp.Name));
+                }
+
+                fieldInfo.SetValue(null, Lookup<TScope>.CompCount);
+                Lookup<TScope>.CompTypeToI[dataType] = Lookup<TScope>.CompCount;
+                Lookup<TScope>.CompCount++;
+            }
+            catch (Exception) // when there is unused IComponent in code - iOS may get exception because of missing AOT 
+            {
+                // Console.WriteLine( ex.Message );
+            }
+        }
+
+        private static bool IsInScope(Type type)
+        {
+            return type.GetInterfaces()
+                .Any(x =>
+                    x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(Scope<>)
+                    && x.GetGenericArguments()[0] == typeof(TScope)
+                );
+        }
+
+        private static bool IsEventAnyChild(Type type)
+        {
+            return type.GetInterfaces()
+                .Any(x =>
+                    x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(IEvent_Any<,>)
+                    && x.GetGenericArguments()[0] == typeof(TScope)
+                    && x.GetGenericArguments()[1] == type
+                );
+        }
+
+        private static bool IsEventAnyRemovedChild(Type type)
+        {
+            return type.GetInterfaces()
+                .Any(x =>
+                    x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(IEvent_AnyRemoved<,>)
+                    && x.GetGenericArguments()[0] == typeof(TScope)
+                    && x.GetGenericArguments()[1] == type
+                );
+        }
+
+        private static bool IsEventSelfChild(Type type)
+        {
+            return type.GetInterfaces()
+                .Any(x =>
+                    x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(IEvent_Self<,>)
+                    && x.GetGenericArguments()[0] == typeof(TScope)
+                    && x.GetGenericArguments()[1] == type
+                );
+        }
+
+        private static bool IsEventSelfRemovedChild(Type type)
+        {
+            return type.GetInterfaces()
+                .Any(x =>
+                    x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(IEvent_SelfRemoved<,>)
+                    && x.GetGenericArguments()[0] == typeof(TScope)
+                    && x.GetGenericArguments()[1] == type
+                );
+        }
+    }
 }

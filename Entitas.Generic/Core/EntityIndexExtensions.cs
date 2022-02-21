@@ -14,7 +14,7 @@ namespace Entitas.Generic
     public static class EntityIndexExtensions
     {
         public static void AddEntityIndex<TScope, TKey>(this Context<Entity<TScope>> context
-            , String indexKey
+            , string indexKey
             , IGroup<Entity<TScope>> group
             , Func<Entity<TScope>, IComponent, TKey> getKey)
             where TScope : IScope
@@ -23,7 +23,7 @@ namespace Entitas.Generic
         }
 
         public static void AddPrimaryEntityIndex<TScope, TKey>(this Context<Entity<TScope>> context
-            , String indexKey
+            , string indexKey
             , IGroup<Entity<TScope>> group
             , Func<Entity<TScope>, IComponent, TKey> getKey)
             where TScope : IScope
@@ -31,14 +31,14 @@ namespace Entitas.Generic
             context.AddEntityIndex(new PrimaryEntityIndex<Entity<TScope>, TKey>(indexKey, group, getKey));
         }
 
-        public static HashSet<Entity<TScope>> GetEntities<TScope, TKey>(this Context<Entity<TScope>> context, String indexKey,
+        public static HashSet<Entity<TScope>> GetEntities<TScope, TKey>(this Context<Entity<TScope>> context, string indexKey,
             TKey entityKey)
             where TScope : IScope
         {
             return ((EntityIndex<Entity<TScope>, TKey>) context.GetEntityIndex(indexKey)).GetEntities(entityKey);
         }
 
-        public static Entity<TScope> GetEntity<TScope, TKey>(this Context<Entity<TScope>> context, String indexKey,
+        public static Entity<TScope> GetEntity<TScope, TKey>(this Context<Entity<TScope>> context, string indexKey,
             TKey entityKey)
             where TScope : IScope
         {
@@ -47,7 +47,7 @@ namespace Entitas.Generic
 
         // for compile time type inference
         public static HashSet<Entity<TScope>> GetAllEntsBy<TScope, TComp, TKey>(this ScopedContext<TScope> context,
-            String indexName, TKey key)
+            string indexName, TKey key)
             where TScope : IScope
             where TComp : Scope<TScope>, IGetAllEntsByIndex<TKey>
         {
@@ -55,7 +55,7 @@ namespace Entitas.Generic
         }
 
         // for compile time type inference
-        public static Entity<TScope> GetSingleEntBy<TScope, TComp, TKey>(this ScopedContext<TScope> context, String indexName,
+        public static Entity<TScope> GetSingleEntBy<TScope, TComp, TKey>(this ScopedContext<TScope> context, string indexName,
             TKey key)
             where TScope : IScope
             where TComp : Scope<TScope>, IGetSingleEntByIndex<TKey>
